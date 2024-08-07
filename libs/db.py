@@ -1,4 +1,6 @@
-def execute_sql(sql: str, return_response: bool = False, commit: bool = False ) -> any:
+from typing import Any
+
+def execute_sql(sql: str, return_response: bool = False, commit: bool = False) -> Any:
     """
     executes SQL statement against db.
     :param sql - a valid pgSQL statement.

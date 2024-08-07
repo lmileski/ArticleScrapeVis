@@ -8,9 +8,10 @@ sql = """
 CREATE SCHEMA IF NOT EXISTS dbo;
 CREATE TABLE IF NOT EXISTS dbo.article (
     id SERIAL,
+    article_author TEXT NOT NULL,
     article_title TEXT NOT NULL,
     article_date TIMESTAMPTZ NULL,
-    article_url TEXT NOT NULL UNIQUE 
+    article_url TEXT NOT NULL UNIQUE
 )
 
 CREATE TABLE IF NOT EXISTS dbo.article_entities (
