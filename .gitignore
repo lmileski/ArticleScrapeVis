@@ -4,3 +4,4 @@ venv/
 .idea/
 .idea
 .vscode
+scratch.py
