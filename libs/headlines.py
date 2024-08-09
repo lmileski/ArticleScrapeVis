@@ -1,5 +1,7 @@
-import requests, os
+import requests, os, sys
 from datetime import datetime
+sys.path.append('../ArticleScrapeVis')
+import local_config
 
 root = 'https://newsapi.org/v2'
 api_key = os.getenv('NEWS_API_KEY')
