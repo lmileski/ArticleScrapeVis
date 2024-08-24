@@ -31,3 +31,4 @@ def extract_entities(text: str) -> list:
         annotation['label']
         for annotation in response.json()['annotations']
     ]
+...

@@ -22,4 +22,4 @@ CREATE TABLE IF NOT EXISTS dbo.article_entities (
 );
 """
 
-execute_sql(sql=sql, return_response=False, commit=True) # type: ignore
+execute_sql(sql=sql, return_response=False, commit=True)

@@ -1,3 +1,6 @@
 pandas
 requests
 pyodbc
+datetime
+typing
+psycopg2
