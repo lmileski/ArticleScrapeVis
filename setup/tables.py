@@ -1,6 +1,8 @@
 """
 Run this file once after provisioning a postgres DB to create the needed tables for the app to work properly.
 """
+import sys
+sys.path.append('../ArticleScrapeVis')
 from libs.db import execute_sql
 
 

@@ -2,6 +2,7 @@
 Gets a collection of headlines and generates extracted entities for them,
 then uploads both objects to db.
 """
+
 from libs.headlines import get_headlines
 from libs.dandelion import extract_entities
 from libs.db import execute_sql
