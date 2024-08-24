@@ -4,3 +4,5 @@ venv/
 .idea/
 .idea
 .vscode
+scratch.py
+local_config.py
