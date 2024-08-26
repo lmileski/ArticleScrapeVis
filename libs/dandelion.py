@@ -1,5 +1,6 @@
 import requests as r
 import os
+import local_config
 dandelion_key = os.getenv('DANDELION_API_KEY', None)
 
 
@@ -19,16 +20,15 @@ def extract_entities(text: str) -> list:
     response = r.get(
         url=url,
         params=params,
-        verify=0
+        verify=False
     )
 
     if response.status_code != 200:
         print(response.status_code)
         print(response.text)
-        return Exception(f"Unable to extract entities due to error: {response.text}")
+        raise Exception(f"Unable to extract entities due to error: {response.text}")
 
     return [
         annotation['label']
         for annotation in response.json()['annotations']
     ]
-...

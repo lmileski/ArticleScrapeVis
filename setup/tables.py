@@ -3,23 +3,24 @@ Run this file once after provisioning a postgres DB to create the needed tables 
 """
 from libs.db import execute_sql
 
+def create_tables(sql=""):
+    sql += """
+    CREATE SCHEMA IF NOT EXISTS public;
 
-sql = """
-CREATE SCHEMA IF NOT EXISTS dbo;
-CREATE TABLE IF NOT EXISTS dbo.article (
-    id SERIAL,
-    article_author TEXT NOT NULL,
-    article_title TEXT NOT NULL,
-    article_date TIMESTAMPTZ NULL,
-    article_url TEXT NOT NULL UNIQUE
-);
+    CREATE TABLE IF NOT EXISTS public.article (
+        id SERIAL PRIMARY KEY,
+        author TEXT NOT NULL,
+        title TEXT NOT NULL,
+        date TIMESTAMPTZ NULL,
+        url TEXT NOT NULL UNIQUE
+    );
 
-CREATE TABLE IF NOT EXISTS dbo.article_entities (
-    id SERIAL,
-    article_id INT NOT NULL,
-    entity TEXT,
-    confidence FLOAT NOT NULL
-);
-"""
+    CREATE TABLE IF NOT EXISTS public.article_entities (
+        id SERIAL PRIMARY KEY,
+        article_id INT NOT NULL,
+        entity TEXT,
+        FOREIGN KEY (article_id) REFERENCES public.article(id)
+    );
+    """
 
-execute_sql(sql=sql, return_response=False, commit=True)
+    execute_sql(sql=sql, commit=True)

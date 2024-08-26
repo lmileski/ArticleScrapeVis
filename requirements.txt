@@ -3,4 +3,4 @@ requests
 pyodbc
 datetime
 typing
-psycopg2
+sqlalchemy

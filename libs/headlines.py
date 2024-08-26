@@ -1,17 +1,22 @@
 import requests, os
+import pandas as pd
 from datetime import datetime
+import local_config
+from libs.db import execute_sql
 
 root = 'https://newsapi.org/v2'
 api_key = os.getenv('NEWS_API_KEY')
 
-def get_headlines() -> list[dict]:
+def add_headlines() -> pd.DataFrame:
     """
-    Gets a list of US headlines from the API.
-    Returns a list of dictionaries for each article, including:
+    Gets a list of US headlines from the API, including
+    a list of dictionaries for each article:
         - author
         - title
         - date (as a datetime object)
         - URL
+    Adds all this info to the postgres db
+    Return the pandas df from the list of dictionaries
     """
     # collecting data w/ API
     url = f'{root}/top-headlines'
@@ -33,4 +38,9 @@ def get_headlines() -> list[dict]:
 
         article_info.append(required_article_info)
 
-    return article_info
+    df = pd.DataFrame(article_info)
+
+    # executing headline info to db
+    execute_sql(df=df, table_name='article', commit=True)
+
+    return df
