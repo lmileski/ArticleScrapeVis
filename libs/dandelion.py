@@ -28,7 +28,7 @@ def extract_entities(text: str) -> list:
         print(response.text)
         raise Exception(f"Unable to extract entities due to error: {response.text}")
 
-    return [
+    return list(set([
         annotation['label']
         for annotation in response.json()['annotations']
-    ]
+    ]))

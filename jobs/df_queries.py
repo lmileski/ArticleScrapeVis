@@ -1,18 +1,25 @@
-from typing import Any
-from libs.db import execute_sql
-from collections import defaultdict
 """
 Queries the db for relevant info needed in st charts/visuals
 """
+from typing import Any
+from libs.db import execute_sql
 
-def find_histogram_info() -> dict[str, Any]:
+def find_top_headline_info() -> dict[str, Any]:
     """
-    Finds all repeating entities and matches them to their frequency
+    Finds all repeating entities and matches them to their
+    - frequency
+    - article headlines:
+        - author
+        - date
+        - url
+    Returns a dictionary of all this data
     """
-    entitiesInfo = defaultdict(list)
+
+    entitiesInfo = {}
     sql = """
     SELECT entity
     FROM entities_to_articles
+    WHERE LOWER(author) NOT LIKE '%' || LOWER(entity) || '%'
     GROUP BY entity
     HAVING COUNT(entity) > 1;
     """
@@ -24,25 +31,44 @@ def find_histogram_info() -> dict[str, Any]:
             params = {'entity': entity}
 
             sql = f"""
-            SELECT author
+            SELECT title, url, date, author
             FROM entities_to_articles
             WHERE LOWER(entity) LIKE '%' || LOWER(:entity) || '%';
             """
-            authors = execute_sql(sql=sql, params=params, return_response=True)
-            # stripping tuples
-            if authors: authors = [author[0] for author in authors]
+            entity_info = execute_sql(sql=sql, params=params, return_response=True)
+
             # adding to dictionary of repeated entities
-            entitiesInfo['Entities'].append(entity)
-            entitiesInfo['Count'].append(len(authors) if authors else 0)
-            entitiesInfo['Authors'].append(authors)
+            entitiesInfo[entity] = entity_info
 
     return entitiesInfo
 
-def find_table_info() -> dict[str, Any]:
+def find_all_article_info() -> list[tuple]:
     """
-    Collects all database article info ...
+    Collects all articles and sorts them by their
+    - title (w/URL)
+    - author
+    - date
+    - all entities
     """
 
+    sql = """
+    SELECT * FROM article
+    ORDER BY date DESC; 
+    """
+    all_articles = execute_sql(sql=sql, return_response=True)
 
+    if all_articles:
+        for i, article in enumerate(all_articles):
+            id = article[0]
+            sql = """
+            SELECT entity FROM entities_to_articles
+            WHERE article_id = :id;
+            """
+            params = {'id': id}
+            entities = execute_sql(sql=sql, params=params, return_response=True)
+            article_w_entities = list(article)
+            # stripping entities of () and converting to a single str
+            if entities: article_w_entities.append(", ".join([entity[0] for entity in entities]))
+            all_articles[i] = tuple(article_w_entities)
 
-    return
+    return all_articles or []
