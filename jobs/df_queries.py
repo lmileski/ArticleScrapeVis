@@ -55,6 +55,7 @@ def find_all_article_info() -> list[tuple]:
     SELECT * FROM article
     ORDER BY date DESC; 
     """
+    articles_w_entities = []
     all_articles = execute_sql(sql=sql, return_response=True)
 
     if all_articles:
@@ -66,9 +67,9 @@ def find_all_article_info() -> list[tuple]:
             """
             params = {'id': id}
             entities = execute_sql(sql=sql, params=params, return_response=True)
-            article_w_entities = list(article)
+            entity_article = list(article)
             # stripping entities of () and converting to a single str
-            if entities: article_w_entities.append(", ".join([entity[0] for entity in entities]))
-            all_articles[i] = tuple(article_w_entities)
+            if entities: entity_article.append(", ".join([entity[0] for entity in entities]))
+            articles_w_entities.append(tuple(entity_article))
 
-    return all_articles or []
+    return articles_w_entities or []

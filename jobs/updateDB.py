@@ -19,9 +19,9 @@ def create_db(reset=False):
 
     if reset:
         sql += """
-        TRUNCATE TABLE IF EXISTS public.article CASCADE;
-        TRUNCATE TABLE IF EXISTS public.article_entities CASCADE;
-        TRUNCATE TABLE IF EXISTS public.entities_to_articles;
+        DROP TABLE IF EXISTS public.article CASCADE;
+        DROP TABLE IF EXISTS public.article_entities CASCADE;
+        DROP TABLE IF EXISTS public.entities_to_articles;
         """
     
     create_tables(sql=sql)
@@ -32,7 +32,7 @@ def insert_data(reset=False):
     headline info to the database
     """
     # clearing old table info if existent
-    if not reset:
+    if reset:
         create_db(reset=True)
     # inserts headline data and returns the used df
     top_headlines = add_headlines()
