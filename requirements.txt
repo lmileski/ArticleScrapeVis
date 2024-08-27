@@ -9,4 +9,3 @@ python-dotenv
 plotly
 streamlit
 tzlocal
-zoneinfo
