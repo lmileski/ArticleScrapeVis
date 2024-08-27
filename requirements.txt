@@ -4,3 +4,9 @@ pyodbc
 datetime
 typing
 sqlalchemy
+psycopg2
+python-dotenv
+plotly
+streamlit
+tzlocal
+zoneinfo

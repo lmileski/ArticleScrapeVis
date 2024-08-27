@@ -4,8 +4,10 @@ from libs.entities import add_entities
 from libs.join_tables import create_joint_table
 
 """
-1) update_db() creates all tables if they aren't already made
-2) insert_data() adds all article headline and entity info into the database
+- update_db() creates all tables if they aren't already made
+- insert_data() adds all article headline and entity info into the database
+
+Also used as script for frequent db updates through Heroku
 """
 
 def update_db(reset=False):
@@ -17,14 +19,13 @@ def update_db(reset=False):
 
     if reset:
         sql += """
-        DROP TABLE IF EXISTS public.article CASCADE;
-        DROP TABLE IF EXISTS public.article_entities CASCADE;
-        DROP TABLE IF EXISTS public.entities_to_articles;
+        TRUNCATE TABLE IF EXISTS public.article CASCADE;
+        TRUNCATE TABLE IF EXISTS public.article_entities CASCADE;
+        TRUNCATE TABLE IF EXISTS public.entities_to_articles;
         """
     
     create_tables(sql=sql)
 
-    
 def insert_data():
     """
     Inserts all the most recent API scraped article and
@@ -38,3 +39,6 @@ def insert_data():
     add_entities(list(top_headlines['title']))
     # creating the joint table with newest info
     create_joint_table()
+
+if __name__ == '__main__':
+    update_db()
