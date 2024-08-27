@@ -10,7 +10,7 @@ from libs.join_tables import create_joint_table
 Also used as script for frequent db updates through Heroku
 """
 
-def update_db(reset=False):
+def create_db(reset=False):
     """
     Creates needed db tables if they don't already exist
     When reset=True, all table data is erased
@@ -26,13 +26,14 @@ def update_db(reset=False):
     
     create_tables(sql=sql)
 
-def insert_data():
+def insert_data(reset=False):
     """
     Inserts all the most recent API scraped article and
     headline info to the database
     """
     # clearing old table info if existent
-    update_db(reset=True)
+    if not reset:
+        create_db(reset=True)
     # inserts headline data and returns the used df
     top_headlines = add_headlines()
     # adding entity data based off titles of headlines in the df
@@ -41,4 +42,4 @@ def insert_data():
     create_joint_table()
 
 if __name__ == '__main__':
-    update_db()
+    insert_data(reset=True)
