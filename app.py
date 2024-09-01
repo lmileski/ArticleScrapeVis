@@ -1,3 +1,8 @@
+try:
+    import local_config
+except ImportError:
+    pass
+
 import streamlit as st
 from tzlocal import get_localzone
 import plotly.express as px
@@ -7,7 +12,7 @@ from libs.format_time import format_time
 
 st.set_page_config(page_title="Top Headlines App")
 st.header("Top Headlines Last 24 Hours")
-st.caption("A Project by Luke Mileski and Philip Kay")
+st.caption("A Project by Luke Mileski and Filipp Kay")
 
 # adding custom css for tables
 table_style = """
@@ -24,24 +29,26 @@ table_style = """
 """
 # alerting st that we're using this style
 st.markdown(table_style, unsafe_allow_html=True)
-
 headline_data = q.find_top_headline_info()
+
 
 # organizing data needed for top headlines histogram and table
 frequencies, authors, headline_url_and_date = [], [], []
 local_tz = get_localzone()
 
 for entity, articles in headline_data.items():
+
     frequencies.append(len(articles))
     authors.append([])
     headline_url_and_date.append([])
+
     for article in articles:
         # formats the date to Yesterday/Today, hour:minute AM/PM
-        full_date = format_time(article[2], local_tz)
+        full_date = format_time(article['date'], local_tz)
 
-        authors[-1].append(article[-1]) # type: ignore
+        authors[-1].append(article['author']) # type: ignore
         # storing headline/url/date as one element (link w/ title - date)
-        link = f'<a href="{article[1]}" target="_blank">{article[0]}</a>'
+        link = f"""<a href="{article['url']}" target="_blank">{article['title']}</a>"""
         headline_url_and_date[-1].append(f"{full_date} - {link}<br><br>") # type: ignore
 
     headline_url_and_date[-1] = "".join(headline_url_and_date[-1])
@@ -82,13 +89,14 @@ st.markdown("<br><h2 style='text-align: center; transform: translateX(25px);'>Al
 
 # grabbing all articles data
 articles_list = q.find_all_article_info()
+print(articles_list)
 # converting title and url fields into one - for hyperlinks
 for i, article in enumerate(articles_list):
-    title = article[2]
-    url = article[4]
+    title = article['title']
+    url = article['url']
     link = f'<a href="{url}" target="_blank">{title}</a>'
     # rewriting the tuple element w/ only 3 elements - formatted for table use
-    articles_list[i] = (link, article[1], format_time(article[3], local_tz), article[5])
+    articles_list[i] = (link, article['title'], format_time(article['date'], local_tz), article['entities'])
 
 all_articles_table = pd.DataFrame(articles_list, columns=['Article', 'Author', 'Date', 'Entities'])
 

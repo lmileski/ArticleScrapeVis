@@ -6,3 +6,4 @@ venv/
 .vscode
 scratch.py
 local_config.py
+.venv
