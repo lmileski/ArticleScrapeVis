@@ -55,3 +55,10 @@ def execute_sql(sql: str, return_response: bool = False, commit: bool = False, c
         print("Rolling back transaction due to error.")
         raise e
     
+
+def clear_tables():
+    entity_table = Table("article_entities", MetaData(schema="public"), autoload_with=engine)
+    article_table = Table("article", MetaData(schema="public"), autoload_with=engine)
+    
+    con.execute(delete(entity_table))
+    con.execute(delete(article_table))

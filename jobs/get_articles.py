@@ -1,7 +1,6 @@
 from libs import headlines, dandelion, db
 import pandas as pd 
 
-
 def main():
     # get headlines 
     article_records = headlines.get_headlines() 
@@ -16,6 +15,10 @@ def main():
 
     try:
 
+        print("Clearing tables...")
+        db.clear_tables()
+
+        print("Adding new articles...")
         article_ids = db.add_articles(article_records)
         df = pd.DataFrame.from_records(article_ids)
         df = df.merge(
@@ -29,6 +32,7 @@ def main():
         article_entities = df.explode('entity')[['id', 'entity']].rename(columns={'id': 'article_id'}).to_dict(orient='records')
 
         # upsert entities for each article
+        print("Adding new entities...")
         db.add_entities(article_entities)
         db.con.commit()
 
@@ -37,7 +41,7 @@ def main():
         raise e 
     
     finally:
-
+        print("Success!")
         db.con.close()
     
 main()

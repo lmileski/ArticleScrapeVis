@@ -30,7 +30,7 @@ def get_headlines() -> list:
         date_obj = datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%SZ')
 
         required_article_info = {
-            'author': article['author'],
+            'author': article['author'] if article['author'] else 'Unknown',
             'title': article['title'],
             'date': date_obj,
             'url': article['url']
