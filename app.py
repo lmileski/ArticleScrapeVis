@@ -96,7 +96,7 @@ for i, article in enumerate(articles_list):
     url = article['url']
     link = f'<a href="{url}" target="_blank">{title}</a>'
     # rewriting the tuple element w/ only 3 elements - formatted for table use
-    articles_list[i] = (link, article['title'], format_time(article['date'], local_tz), article['entities'])
+    articles_list[i] = (link, article['author'], format_time(article['date'], local_tz), article['entities'])
 
 all_articles_table = pd.DataFrame(articles_list, columns=['Article', 'Author', 'Date', 'Entities'])
 
