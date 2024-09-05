@@ -40,3 +40,4 @@ def main():
 
         db.con.close()
     
+main()
