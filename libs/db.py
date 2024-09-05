@@ -1,45 +1,64 @@
-from typing import Optional
-import pandas as pd
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, Table, MetaData, literal_column, delete, text
+from sqlalchemy.dialects.postgresql import insert
+import os 
 
-def execute_sql(table_name: Optional[str] = None, sql: Optional[str] = None, df: Optional[pd.DataFrame] = None,
-                params: Optional[dict] = None, return_response: bool = False, commit: bool = False) -> Optional[list[tuple]]:
-    """
-    executes SQL statement against db.
-    :param sql - sql text to be executed
-    :param df - pandas df to be converted into sql then executed
-    :param return_response - if `True`, returns any response the query generates (ie, select)
-    :param commit - if `True`, commits a statement against the db.
-    :returns None or an iterable.
-    """
-    
-    # connecting to db
-    engine = create_engine('postgresql+psycopg2://postgres:biscuits@localhost:5432/postgres')
-    Session = sessionmaker(bind=engine)
-    session = Session()
 
-    response = None
-    # beginning transaction
+ALCHEMY_DATABASE_URL = os.getenv('ALCHEMY_DATABASE_URL')
+engine = create_engine(ALCHEMY_DATABASE_URL)
+con = engine.connect()
+
+
+def add_articles(article_records: list[dict]):
+    article_table = Table("article", MetaData(schema="public"), autoload_with=engine)
+    upsert_query = insert(article_table)
+    upsert_query = upsert_query.on_conflict_do_update(
+        index_elements=['url'],
+        set_= {
+            article_table.c.title: upsert_query.excluded.title
+        }
+    )
+    upsert_query = upsert_query.returning(literal_column("url"), literal_column("id"))
+    response = con.execute(upsert_query.values(article_records)).mappings().all()
+    return response 
+
+
+def reset_entities(article_ids: list):
+    entity_table = Table("article_entities", MetaData(schema="public"), autoload_with=engine)
+    delete_query = delete(entity_table).where(entity_table.c.article_id.in_(article_ids))
+    con.execute(delete_query)
+
+
+def add_entities(entity_records: list[dict]):
+    entity_table = Table("article_entities", MetaData(schema="public"), autoload_with=engine)
+    insert_query = insert(entity_table)
+    insert_query = insert_query.on_conflict_do_nothing(
+        index_elements=['article_id','entity']
+    )
+    con.execute(insert_query.values(entity_records))
+
+
+def execute_sql(sql: str, return_response: bool = False, commit: bool = False, close_connection: bool = False):
+    sql_query = text(sql)
     try:
-        if sql:
-            result = session.execute(text(sql), params)
-            if return_response:
-                response = result.fetchall()
-        if isinstance(df, pd.DataFrame) and table_name:
-            # converting df to sql and executing
-            df.to_sql(table_name, engine, if_exists='append', index=False)
-        # committing only if desired
-        if commit:
-            session.commit()
-            # transaction successful
-    
-    except Exception as e:
-        # rolling back transaction in case of error
-        session.rollback()
-        print(f"Transaction rolled back due to error: {e}")
+        response = con.execute(sql_query)
+        response_body = response.mappings().all() if return_response else None 
 
-    finally:
-        session.close()
+        if commit:
+            con.commit()
+        if close_connection:
+            con.close()
+        return response_body  
+
+    except Exception as e:
+        con.rollback()
+        con.close()
+        print("Rolling back transaction due to error.")
+        raise e
     
-    return response # type: ignore
+
+def clear_tables():
+    entity_table = Table("article_entities", MetaData(schema="public"), autoload_with=engine)
+    article_table = Table("article", MetaData(schema="public"), autoload_with=engine)
+    
+    con.execute(delete(entity_table))
+    con.execute(delete(article_table))
