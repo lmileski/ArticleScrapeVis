@@ -1,6 +1,5 @@
 import requests as r
 import os
-import local_config
 dandelion_key = os.getenv('DANDELION_API_KEY', None)
 
 
