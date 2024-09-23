@@ -79,3 +79,28 @@ x = headlines.get_headlines()
 ```
 
 Note that any library will not run locally as it will look for environment variables that can only be configured by first import a local config file.
+
+## News API
+The article headline data is collected using the <a href="https://newsapi.org/">News API</a>. Only news headlines in America within the last 24 hours are pulled. To use the API, you can select the developer plan for a free key that grants 100 requests per day.
+
+Integration of the News API is found in the get_headlines() function within `headlines.py`, which does the following:
+1. Fetches the API key that was set earlier within local_config.py.
+2. Sets the root API URL and specific endpoint for US top-headlines.
+3. Makes a GET request to the API and stores the resultant headline data in .json dictionary format.
+4. Parses through each headline, adding author, title, date, and URL info to a list of headline dictionaries, which is returned.
+
+## Dandelion API
+The top article entity data is collected using the <a href="https://dandelion.eu/">Dandelion API</a>. To use the API, you can select the basic plan for a free key that grands 1000 requests per day.
+
+Integration of the Dandelion API is found in the extract_entities() function within `dandelion.py`, which does the following:
+1. Fetches the API key that was set earlier within local_config.py.
+2. Sets the root API URL and parameters (key, language, text, min_entity_confidence).
+3. Makes a GET requests to the API and stores each resultant entity in a list, which is returned.
+
+## CRON Job Function
+The article headline data is updated everyday using a Cron To Go job, which calls main() within `jobs/get_articles.py`. The database and streamlit app are updates as follows:
+1. Current headline data from the last 24 hours is collected via NewsAPI.
+2. All previous article and entity data is cleared from the database tables.
+3. Most current headline data is inserted into the db tables.
+4. Headline data is then used to extract most relevant entities, which are then added to the db.
+5. Streamlit's auto-reload feature detects the change and refreshes with new db updates.
