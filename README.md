@@ -1,5 +1,7 @@
 # Article Scrape Visualization Tool
 _a project by Luke Mileski & Filipp Kay_
+#### Streamlit Url: 
+[https://wordhuntsolver.streamlit.app/](https://articlescrapevis-d734d836d935.herokuapp.com/)
 
 ## Overview 
 This tool uses a daily CRON job to get the latest trending news articles using the NewsAPI library, extracts relevant keywords from them using the Dandelion API, stores them in a PostgresDB hosted via Heroku, and visualizes emergent keywords using a Streamlit application.
